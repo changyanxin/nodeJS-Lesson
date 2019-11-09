@@ -2,6 +2,12 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const url = require("url");
+var qs=require("querystring");
+//对象
+const chapter = require('./detail');
+var chosenChapter={};
+var params=0;
+// console.log(chapterList.chapterList);
 /**
 博客详情页：通过点击博客列表的阅读全文打开 ，访问地址类似 http://localhost:8083/detail?chapterId=4    对应静态页chapter.html
  */
@@ -20,6 +26,7 @@ const url = require("url");
  * $.get
  */
 http.createServer(function(req,res){
+    console.log(chapterList);
     var urlObj = url.parse(req.url,true);
     var pathName = urlObj.pathname;
     if(pathName == '/list'){
@@ -44,13 +51,46 @@ http.createServer(function(req,res){
         //登录页面图片
         showImages(res,pathName);
     }else if(pathName == '/getuserdata'){
-        // console.log("getuser");
-        // var params = url.parse(req.url, true).query;
-        // console.log(params);
         check(req,res);
+    }else if(pathName == '/detail'){
+        //阅读全文
+        // console.log(JSON.stringify(chapter.chapterList));
+        // console.log('/detail mySever.js');
+        params = url.parse(req.url, true).query.chapterId; 
+        res.write(JSON.stringify(chapter.chapterList));
+        res.end();
+    }else if(pathName == '/getdetail'){
+        res.writeHead(200,{'Content-Type':'text/json'});
+        chosenChapter=chapter.chapterList[params];  
+        res.end(JSON.stringify(chosenChapter));
+    }else if(req.url == '/add'){
+        console.log("收到");
+        var newChapter = {};
+        
+        var postData = ""; 
+        // 数据块接收中
+         req.addListener("data", function (postDataChunk) {
+            postData += postDataChunk;
+
+            var title=qs.parse(postData).title;
+            var content=qs.parse(postData).content;
+            console.log(qs.parse(postData));
+
+            newChapter.chapterId=chapter.chapterList.length+1;
+            newChapter.chapterName=title;
+            newChapter.chapterDes=content;
+            newChapter.chapterContent=content;
+            newChapter.publishTimer= "2019-08-19";
+            newChapter.author="admin";
+            newChapter.views=1022;
+            newChapter.imgPath='';
+            chapter.chapterList.push(newChapter);
+        })
     }
+        
 }).listen(8083);
 console.log(8083);
+
 function check(req,res){
     // console.log("check");
     var params = url.parse(req.url, true).query;
