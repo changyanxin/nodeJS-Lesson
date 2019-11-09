@@ -64,9 +64,7 @@ http.createServer(function(req,res){
         chosenChapter=chapter.chapterList[params];  
         res.end(JSON.stringify(chosenChapter));
     }else if(req.url == '/add'){
-        console.log("收到");
         var newChapter = {};
-        
         var postData = ""; 
         // 数据块接收中
          req.addListener("data", function (postDataChunk) {
